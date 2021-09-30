@@ -1,7 +1,28 @@
-import '../styles/globals.css'
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { persistQueryClient } from "react-query/persistQueryClient-experimental";
+import { createWebStoragePersistor } from "react-query/createWebStoragePersistor-experimental";
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+const queryClient = new QueryClient();
+
+if (typeof window !== "undefined") {
+  const localStoragePersistor = createWebStoragePersistor({
+    storage: window.localStorage,
+  });
+
+  persistQueryClient({
+    queryClient,
+    persistor: localStoragePersistor,
+  });
 }
 
-export default MyApp
+function MyApp({ Component, pageProps }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Component {...pageProps} />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  );
+}
+
+export default MyApp;
